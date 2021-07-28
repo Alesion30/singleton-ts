@@ -10,31 +10,28 @@
 
 ```ts
 class Singleton {
-    private _count: number;
-    public static get count(): number {
-        return Singleton.instance._count;
-    };
+    public count: number;
 
     // 初期化
     private constructor() {
-        this._count = 0;
+        this.count = 0;
     };
 
     // インスタンス
     private static _instance: Singleton;
-    private static get instance(): Singleton {
-        if (!this._instance) {
-            this._instance = new Singleton();
+    public static get instance(): Singleton {
+        if (!Singleton._instance) {
+            Singleton._instance = new Singleton();
         }
-        return this._instance;
+        return Singleton._instance;
     }
 
-    public static increment = () => Singleton.instance._count++;
+    public increment = () => this.count++;
 }
 ```
 
 コンストラクトに関してはプライベートメソッドにし、外部からインスタンスを生成できないようにしている。
-また、外部からの呼び出しについては、静的変数・静的メソッドとして定義している。
+インスタンスは内部で生成するようにし、外部からは`Singleton.instance`でインスタンス情報を取得するようにしている。
 
 <br />
 
@@ -58,15 +55,15 @@ class NonSingleton {
 ### 呼び出し
 
 ```ts
-const main = () => {
+const main = (): void => {
     // シングルトンではない
     console.log('================================');
     console.log('シングルトンではないパターン')
     console.log('================================');
     const hoge1 = new NonSingleton();
-    console.log(hoge1.count);
+    console.log(hoge1.count); // <- expect: 0
     hoge1.increment();
-    console.log(hoge1.count);
+    console.log(hoge1.count); // <- expect: 1
     console.log('================================');
     const fugo1 = new NonSingleton();
     console.log(fugo1.count); // <- expect: 0
@@ -76,17 +73,17 @@ const main = () => {
     console.log('================================');
     console.log('シングルトンパターン')
     console.log('================================');
-    const hoge2 = Singleton;
-    console.log(hoge2.count);
+    const hoge2 = Singleton.instance;
+    console.log(hoge2.count); // <- expect: 0
     hoge2.increment();
-    console.log(hoge2.count);
+    console.log(hoge2.count); // <- expect: 1
     console.log('================================');
-    const fugo2 = Singleton;
+    const fugo2 = Singleton.instance;
     console.log(fugo2.count); // <- expect: 1
     console.log('================================\n');
 };
 
-main();
+void main();
 ```
 
 - シングルトンではないパターンでは、インスタンスが複数作成されている。（hoge1.count !== fugo1.count）
